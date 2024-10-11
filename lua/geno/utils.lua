@@ -1,11 +1,16 @@
 M = {}
 
 -- Ensure function is called before window creation
-function M.process_prompt(prompt, default_input)
+function M.process_prompt(prompt, default_input, selection, filetype)
     local system = prompt['system']
     local user = prompt['user']
 
-    -- Prompt builder
+
+    system = system.gsub(system, "$filetype", filetype)
+    user = system.gsub(user, "$filetype", filetype)
+    system = system.gsub(system, "$text", selection)
+    user = user.gsub(user, "$text", selection)
+
     if string.match(system, "$input") or string.match(user, "$input") then
         vim.ui.input({ prompt = "Prompt|> ", default = default_input },
             function(user_input)
@@ -15,37 +20,41 @@ function M.process_prompt(prompt, default_input)
         )
     end
 
-    -- Selection builder
-    if string.match(system, "$selection") or string.match(user, "$selection") then
-        local start_pos = vim.fn.getpos("'<")
-        local end_pos = vim.fn.getpos("'>")
-
-        -- Error handling in case nothing is selected
-        if not start_pos or not end_pos or start_pos[2] < 1 or end_pos[2] < 1 then
-            vim.notify("No Selection found...")
-        else
-            local lines = vim.api.nvim_buf_get_lines(0, start_pos[2] - 1, end_pos[2], false)
-
-            -- Adjust first and last lines based on selection positions
-            lines[1] = lines[1]:sub(start_pos[3], -1)
-            if #lines > 1 then -- Only trim the last line if there are multiple lines
-                lines[#lines] = lines[#lines]:sub(1, end_pos[3])
-            end
-            local selection = table.concat(lines, "\n") 
-            system.gsub(system, "$selection", selection)
-            user.gsub(user, "$selection", selection)
-        end
-    end
-
     return system, user
 end
 
-funtion M.insert_text(text, buffer)
-    -- Inserts text into the buffer where the cursor is
-    -- Replaces the current selection if there is one
-    local start_pos = vim.fn.getpos("'<")
-    local end_pos = vim.fn.getpos("'>")
-    
+
+function M.insert_text()
+    local reg_info = vim.fn.getreginfo('"')
+    vim.api.nvim_command("normal! ggyG")
+
+    vim.api.nvim_win_close(0, true)
+    local mode = vim.fn.mode()
+    if (mode == "v") or (mode == "V") then
+        vim.api.nvim_command("normal! \"_dP")
+    else
+        vim.api.nvim_command("normal! P")
+    end
+    vim.fn.setreg('"', reg_info)
+end
+
+
+function M.get_selection()
+    if not ((vim.fn.mode() == "v") or (vim.fn.mode() == "V")) then
+        local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
+        return table.concat(lines, '\n')
+    end
+    local s_start = vim.fn.getpos("'<")
+    local s_end = vim.fn.getpos("'>")
+    local n_lines = math.abs(s_end[2] - s_start[2]) + 1
+    local lines = vim.api.nvim_buf_get_lines(0, s_start[2] - 1, s_end[2], false)
+    lines[1] = string.sub(lines[1], s_start[3], -1)
+    if n_lines == 1 then
+        lines[n_lines] = string.sub(lines[n_lines], 1, s_end[3] - s_start[3] + 1)
+    else
+        lines[n_lines] = string.sub(lines[n_lines], 1, s_end[3])
+    end
+    return table.concat(lines, '\n')
 end
 
 return M

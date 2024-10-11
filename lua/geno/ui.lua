@@ -1,3 +1,5 @@
+local utils = require("geno.utils")
+
 UI = {}
 
 local DEFAULT_WIDTH_COVERAGE = 0.7
@@ -41,6 +43,10 @@ function UI.create_output_window()
     
     -- Function to append text to the buffer
     local function append_to_output(text)
+        if result == nil then
+            result = ""
+        end
+        result = result .. text
         local last_line_num = vim.api.nvim_buf_line_count(output_bufnr)
         local last_line = vim.api.nvim_buf_get_lines(output_bufnr, last_line_num - 1, last_line_num, false)[1]
         local new_last_line = last_line .. text

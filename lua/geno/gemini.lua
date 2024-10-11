@@ -2,8 +2,8 @@ local utils = require("geno.utils")
 M = {}
 
 function M.get_models()
-    local api_key = vim.env.OPENAI_API_KEY -- Get API key from environment
-    local cmd = string.format("curl https://api.openai.com/v1/models --silent -H 'Authorization: Bearer %s'", api_key)
+    local api_key = vim.env.GOOGLE_API_KEY -- Get API key from environment
+    local cmd = string.format("curl https://generativelanguage.googleapis.com/v1beta/models?key=%s", api_key)
 
     local handle = io.popen(cmd)
     local result = handle:read("*a")  
@@ -21,8 +21,11 @@ function M.get_models()
 end
 
 function M.chat(model, system, user, callback)
-    local api_key = vim.env.OPENAI_API_KEY
-    local endpoint = "https://api.openai.com/v1/chat/completions"
+    local api_key = vim.env.GOOGLE_API_KEY
+    local endpoint = "https://generativelanguage.googleapis.com/v1beta/models/"\ 
+                        .. model\
+                        .. ":generateContent?key="\
+                        .. api_key
 
     messages = {
         {role = "system", content = system},

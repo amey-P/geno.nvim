@@ -1,5 +1,6 @@
 return {
-    Generate = { system="You are a helpful assistant. Follow the instructions given by the user without any additional comments", user = "$input", replace = true, model="openai/gpt-4o"},
+    Ask = { system="You are a helpful assistant", user = "$input", replace = false},
+    Generate = { system="You are a helpful assistant. Follow the instructions given by the user without any additional comments", user = "$input", replace = true},
     Summarize = { system="You summarize user inputs and return back the summary", user = "$selection", replace=true},
     -- chat = {system = "", name = "Chat", prompt = "$input"},
     -- ask = {system = "", name = "Ask", prompt = "Regarding the following text, $input:\n$text"},
@@ -41,16 +42,15 @@ return {
     --     replace = true
     -- },
     ["Review Code"] = {
-        system = "",
-        prompt = "Review the following code and make concise suggestions:\n```$filetype\n$text\n```"
+        system = "You are a expert $filetype programmer who writes elegant, concise and readable code",
+        user = "Review the following code and make concise suggestions:\n```$filetype\n$text\n```"
     },
-    -- enhance_code = {
-    --     system = "",
-    --     name = "Enhance_Code",
-    --     prompt = "Enhance the following code, only output the result in format ```$filetype\n...\n```:\n```$filetype\n$text\n```",
-    --     replace = true,
-    --     extract = "```$filetype\n(.-)```"
-    -- },
+    ["Enhance Code"] = {
+        system = "You are a expert $filetype programmer who writes elegant, concise and readable code",
+        prompt = "Enhance the following code, only output the result in format ```$filetype\n...\n```:\n```$filetype\n$text\n```",
+        replace = true,
+        extract = "```$filetype\n(.-)```"
+    },
     -- change_code = {
     --     system = "",
     --     name = "Change_Code",

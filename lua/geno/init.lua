@@ -52,7 +52,7 @@ function geno.set_model()
     }):find()
 end
 
-function geno.invoke(prompt_name, user_input)
+function geno.invoke(prompt_name, selection, filetype)
     local prompt = geno.prompts[prompt_name]
 
     -- Get chat model's function
@@ -61,46 +61,41 @@ function geno.invoke(prompt_name, user_input)
     local chat = require("geno." .. model_family).chat
 
     -- Generate and output
-    local original_buffer = vim.api.nvim_get_current_buf()
-    local accepted = false
-    local user_input = user_input or ""
-    local system, user, user_input = utils.process_prompt(prompt, user_input)
-    print(system, user, user_input)
+    local system, user = utils.process_prompt(prompt, user_input, selection, filetype)
 
     if prompt['replace'] then
         inserter = utils.insert_text
     else
-        inserter = function () end
+        inserter = function (_, _, _) end
     end
     local update_response, buffer, window = ui.create_output_window()
 
     -- Buffer keymaps
     opts = { noremap = true, silent = true, buffer = buffer }
-    local function map_output_window_key(mode, lhs, rhs, opts)
-        vim.keymap.set(mode, lhs, rhs, opts)
-    end
     vim.keymap.set('n', '<Esc>', function() vim.api.nvim_win_close(window, true) end, opts)
     vim.keymap.set('n', 'q', function() vim.api.nvim_win_close(window, true) end, opts)
 
     -- Generate Response
-    local response = chat(model_name, system, user, update_response)
+    local result = chat(model_name, system, user, update_response)
 
     -- Handle Response
-    vim.keymap.set('n', 'a', function() 
+    vim.keymap.set('n', 'a', inserter, opts)
+    vim.keymap.set('n', 'y', function()
+        vim.api.nvim_command("normal! ggyG")
         vim.api.nvim_win_close(window, true)
-        inserter(response, original_buffer)
-        accepted = True
     end, opts)
     vim.keymap.set('n', 'r', function() 
         vim.api.nvim_win_close(window, true)
-        geno.invoke(prompt_name, user_input)
+        geno.invoke(prompt_name, selection)
     end, opts)
 end
 
 function geno.invoke_helper(args)
+    local selection = utils.get_selection()
+    local filetype = vim.api.nvim_buf_get_option(0, "filetype")
     local prompt_name = args.fargs[1]
     if prompt_name then
-        return geno.invoke(prompt_name)
+        return geno.invoke(prompt_name, selection, filetype)
     end
 
     local prompt_names = {}
@@ -118,8 +113,8 @@ function geno.invoke_helper(args)
         attach_mappings = function(prompt_bufnr, map)
             telescope_actions.select_default:replace(function()
                 telescope_actions.close(prompt_bufnr)
-                prompt_name = telescope_action_state.get_selected_entry().value
-                geno.invoke(prompt_name)
+                local prompt_name = telescope_action_state.get_selected_entry().value
+                geno.invoke(prompt_name, selection, filetype)
             end)
             return true
         end,
@@ -132,6 +127,7 @@ vim.api.nvim_create_user_command(
     "GenoInvoke", 
     geno.invoke_helper, 
     {
+        range = true,
         nargs = '?', 
         complete = function() 
             local prompt_names = {}
@@ -144,6 +140,7 @@ vim.api.nvim_create_user_command(
 )
 
 -- Keybindings
-vim.keymap.set('n', "<Leader>[", ":GenoInvoke<CR>", { noremap = true, silent = true })
+vim.keymap.set('n', "<leader>[", ":GenoInvoke<CR>", { noremap = true, silent = true })
+vim.keymap.set('v', "<leader>[", ":GenoInvoke<CR>", { noremap = true, silent = true })
 
 return geno

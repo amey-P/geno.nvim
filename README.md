@@ -10,6 +10,12 @@ produce text/code.
 
 
 # Features:
-- [ ] Newlines in output rendering
+- [X] Newlines in output rendering
 - [ ] Custom Prompts from user
 - [ ] Custom models invocation
+- [ ] Using selection as context
+    - [ ] Using current file as context if no selection
+- [ ] Inserting to replace selection
+- [ ] `$filtype` support in prompts
+- [ ] Prompts should either be a string or a function
+- [ ] 'y' shortcut to yank whole buffer and close. default buffer '"'
