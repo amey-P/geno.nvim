@@ -2,12 +2,12 @@ local utils = require("geno.utils")
 
 UI = {}
 
-local DEFAULT_WIDTH_COVERAGE = 0.7
 local DEFAULT_HEIGHT_COVERAGE = 0.5
+local DEFAULT_WIDTH_COVERAGE = 0.9
 
 function UI.win_params(vert_coverage, hori_coverage)
-    local vert_coverage = vert_coverage or DEFAULT_WIDTH_COVERAGE
-    local hori_coverage = hori_coverage or DEFAULT_HEIGHT_COVERAGE
+    local vert_coverage = vert_coverage or DEFAULT_HEIGHT_COVERAGE
+    local hori_coverage = hori_coverage or DEFAULT_WIDTH_COVERAGE
 
     local width = vim.api.nvim_get_option("columns")
     local height = vim.api.nvim_get_option("lines")

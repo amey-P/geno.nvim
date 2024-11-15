@@ -1,8 +1,10 @@
 # Geno.nvim
-A rip-off version of [Gen.nvim](https://github.com/David-Kunz/gen.nvim) with
+Inspired by [Gen.nvim](https://github.com/David-Kunz/gen.nvim) with
 some substituted features.  
 Geno.nvim allows you to interact with chat LLMs from neovim to refine or  
 produce text/code.  
+
+
 **Supported Models:**
 - [X] OpenAI
 - [ ] Anthropic

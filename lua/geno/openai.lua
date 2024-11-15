@@ -35,13 +35,15 @@ function M.chat(model, system, user, callback)
         temperature = 1,
         stream = true
     }
+    local payload = string.gsub(vim.fn.json_encode(data), "'", "\\'")
 
     local curl_cmd = [[curl]]
         .. string.format(" --silent")
+        .. string.format(" %s", endpoint)
         .. string.format(" -H 'Content-Type: application/json'")
         .. string.format(" -H 'Authorization: Bearer %s'", api_key)
-        .. string.format(" -X POST -d '%s'", vim.fn.json_encode(data))
-        .. string.format(" '%s'", endpoint)
+        .. string.format(" -X POST")
+        .. string.format(" -d '%s'", payload)
 
     local unprocessed = ""
     local job_id = vim.fn.jobstart(curl_cmd, {
@@ -62,7 +64,7 @@ function M.chat(model, system, user, callback)
         end,
         on_exit = function(job_id, exit_code, _)
             if exit_code ~= 0 then
-                print("Error running curl command:", exit_code)
+                print("Error running curl command:", exit_code, job_id)
             end
         end
     })

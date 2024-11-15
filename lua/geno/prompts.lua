@@ -1,6 +1,6 @@
 return {
-    Ask = { system="You are a helpful assistant", user = "$input", replace = false},
-    Generate = { system="You are a helpful assistant. Follow the instructions given by the user without any additional comments", user = "$input", replace = true},
+    ["Ask about Buffer"] = { system="You are a helpful assistant", user = "$input", replace = false},
+    Ask = { system="You are a helpful assistant. Follow the instructions given by the user without any additional comments", user = "$input", replace = true},
     Summarize = { system="You summarize user inputs and return back the summary", user = "$selection", replace=true},
     -- chat = {system = "", name = "Chat", prompt = "$input"},
     -- ask = {system = "", name = "Ask", prompt = "Regarding the following text, $input:\n$text"},
@@ -42,20 +42,17 @@ return {
     --     replace = true
     -- },
     ["Review Code"] = {
-        system = "You are a expert $filetype programmer who writes elegant, concise and readable code",
+        system = "You are an expert $filetype programmer who writes elegant, concise and readable code",
         user = "Review the following code and make concise suggestions:\n```$filetype\n$text\n```"
     },
     ["Enhance Code"] = {
-        system = "You are a expert $filetype programmer who writes elegant, concise and readable code",
-        prompt = "Enhance the following code, only output the result in format ```$filetype\n...\n```:\n```$filetype\n$text\n```",
+        system = "You are an expert $filetype programmer who writes elegant, concise and readable code",
+        user = "Enhance the following code, only output the result in format ```$filetype\n...\n```:\n```$filetype\n$text\n```",
         replace = true,
         extract = "```$filetype\n(.-)```"
     },
-    -- change_code = {
-    --     system = "",
-    --     name = "Change_Code",
-    --     prompt = "Regarding the following code, $input, only output the result in format ```$filetype\n...\n```:\n```$filetype\n$text\n```",
-    --     replace = true,
-    --     extract = "```$filetype\n(.-)```"
-    -- }
+    ["Expert Advice"] = {
+        system = "You are an expert $filetype programmer who writes elegant, concise and readable code",
+        user = "Given the code in $filetype format, answer the user queries and help them with foresight for potential issues and suggestions\n\n# File\n$text\n\n# User Query\n$input",
+    }
 }
